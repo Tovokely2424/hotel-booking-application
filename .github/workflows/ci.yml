@@ -3,30 +3,30 @@ name: Deploy to EC2
 on:
   push:
     branches:
-      - main  # ou la branche que tu veux utiliser pour le déploiement
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    # Étape 1: Vérifier le code source
-    - name: Checkout the code
-      uses: actions/checkout@v2
+      # Étape 1: Vérifier le code source
+      - name: Checkout the code
+        uses: actions/checkout@v2
 
-    # Étape 2: Configurer SSH pour se connecter à EC2
-    - name: Setup SSH
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      # Étape 2: Configurer l'agent SSH pour utiliser la clé privée
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Assurez-vous d'utiliser le nom du secret correct
 
-    # Étape 2: Cloner le dépôt si nécessaire
-    - name: Clone repository if not already present
-      run: |
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/github-actions-ec2 prasolonjatovo@13.60.95.56 "if [ ! -d /home/prasolonjatovo/devOpslab/.git ]; then git clone git@github.com:ton_utilisateur/ton_depot.git /home/prasolonjatovo/devOpslab; fi"
+      # Étape 3: Cloner le dépôt si nécessaire
+      - name: Clone repository if not already present
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/github-actions-ec2 prasolonjatovo@13.60.95.56 "if [ ! -d /home/prasolonjatovo/devOpslab/.git ]; then git clone git@github.com:ton_utilisateur/ton_depot.git /home/prasolonjatovo/devOpslab; fi"
 
-      # Étape 3: Déployer sur EC2
-    - name: Deploy to EC2
-      run: |
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/github-actions-ec2 prasolonjatovo@13.60.95.56 \
-          "cd /home/prasolonjatovo/devOpslab && git pull origin main && docker-compose down && docker-compose up -d && sudo systemctl restart nginx"
+      # Étape 4: Déployer sur EC2
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/github-actions-ec2 prasolonjatovo@13.60.95.56 \
+            "cd /home/prasolonjatovo/devOpslab && git pull origin main && docker-compose down && docker-compose up -d && sudo systemctl restart nginx"
