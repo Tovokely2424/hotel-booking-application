@@ -23,7 +23,7 @@ jobs:
     # Étape 3: Se connecter à EC2 et déployer
     - name: Deploy to EC2
       run: |
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/github-actions-ec2 ubuntu@<YOUR_EC2_PUBLIC_IP> << 'EOF'
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/github-actions-ec2 ubuntu@<13.60.95.56> << 'EOF'
           cd /path/to/your/app
           git pull origin main  # Récupérer la dernière version du code
           docker-compose down  # Arrêter les containers existants
