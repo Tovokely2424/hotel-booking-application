@@ -20,11 +20,6 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Assurez-vous d'utiliser le nom du secret correct
 
-      # Étape 3: Cloner le dépôt si nécessaire
-      - name: Clone repository if not already present
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/github-actions-ec2 prasolonjatovo@13.60.95.56 "if [ ! -d /home/prasolonjatovo/devOpslab/.git ]; then git clone git@github.com:ton_utilisateur/ton_depot.git /home/prasolonjatovo/devOpslab; fi"
-
       # Étape 4: Déployer sur EC2
       - name: Deploy to EC2
         run: |
