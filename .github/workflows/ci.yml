@@ -22,12 +22,6 @@ jobs:
 
     # Étape 3: Se connecter à EC2 et déployer
     - name: Deploy to EC2
-      run: |
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/github-actions-ec2 ubuntu@<13.60.95.56> << 'EOF'
-          cd /path/to/your/app
-          git pull origin main  # Récupérer la dernière version du code
-          docker-compose down  # Arrêter les containers existants
-          docker-compose up -d  # Lancer les nouveaux containers
-          # Redémarrer les services Nginx ou autres services nécessaires
-          sudo systemctl restart nginx
-        EOF
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/github-actions-ec2 ubuntu@<13.60.95.56> \
+            "cd /path/to/your/app && git pull origin main && docker-compose down && docker-compose up -d && sudo systemctl restart nginx"
