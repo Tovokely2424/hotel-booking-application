@@ -23,4 +23,4 @@ jobs:
     # Étape 3: Se connecter à EC2 et déployer
     - name: Deploy to EC2
       run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/github-actions-ec2 prasolonjatovo@13.60.95.56 "cd /devOpslab && git pull origin main && docker-compose down && docker-compose up -d && sudo systemctl restart nginx"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/github-actions-ec2 prasolonjatovo@13.60.95.56 "cd /home/prasolonjatovo/devOpslab && git pull origin main && docker-compose down && docker-compose up -d && sudo systemctl restart nginx"
