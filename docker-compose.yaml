@@ -1,19 +1,19 @@
-version: '3.8'
-
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: symfony_app
+    mem_limit: 512m  # Limite la mémoire à 512 Mo
     volumes:
       - .:/var/www
     depends_on:
       - db
 
   nginx:
-    image: nginx:latest
+    image: nginx:alpine
     container_name: symfony_nginx
+    mem_limit: 256m  # Limite la mémoire à 256 Mo
     ports:
       - "8080:80"
     volumes:
@@ -25,11 +25,9 @@ services:
   db:
     image: mysql:8.0
     container_name: symfony_db
+    mem_limit: 512m  # Limite la mémoire à 512 Mo
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: voyage
     volumes:
       - db_data:/var/lib/mysql
-
-volumes:
-  db_data:

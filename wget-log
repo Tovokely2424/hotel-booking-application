@@ -1,0 +1,11 @@
+--2025-10-27 18:00:41--  https://get.symfony.com/cli/installer
+Résolution de get.symfony.com (get.symfony.com)… 3.174.129.107, 3.174.129.21, 3.174.129.100, ...
+Connexion à get.symfony.com (get.symfony.com)|3.174.129.107|:443… connecté.
+requête HTTP transmise, en attente de la réponse… 200 OK
+Taille : 6100 (6,0K) [binary/octet-stream]
+Enregistre : ‘STDOUT’
+
+-                                                     0%[                                                                                                                    ]       0  --.-KB/s               -                                                   100%[===================================================================================================================>]   5,96K  --.-KB/s    ds 0,01s   
+
+2025-10-27 18:00:41 (500 KB/s) — envoi vers sortie standard [6100/6100]
+

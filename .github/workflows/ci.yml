@@ -1,46 +1,33 @@
-name: Symfony CI
+name: Deploy to EC2
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main  # ou la branche que tu veux utiliser pour le déploiement
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
-    services:
-      symfony_db:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: voyage
-
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=5
-
     steps:
-      - uses: actions/checkout@v3
+    # Étape 1: Vérifier le code source
+    - name: Checkout the code
+      uses: actions/checkout@v2
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          extensions: mbstring, pdo, pdo_mysql, zip, intl
-          ini-values: post_max_size=256M, upload_max_filesize=256M
-          coverage: none
+    # Étape 2: Configurer SSH pour se connecter à EC2
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      - name: Install Composer dependencies
-        run: composer install --no-progress --prefer-dist --no-interaction
-
-      - name: Check Symfony requirements
-        run: php bin/console about
-
-      - name: Execute Doctrine migrations
-        run: php bin/console doctrine:migrations:migrate --no-interaction
-
-
-
-
+    # Étape 3: Se connecter à EC2 et déployer
+    - name: Deploy to EC2
+      run: |
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/github-actions-ec2 ubuntu@<YOUR_EC2_PUBLIC_IP> << 'EOF'
+          cd /path/to/your/app
+          git pull origin main  # Récupérer la dernière version du code
+          docker-compose down  # Arrêter les containers existants
+          docker-compose up -d  # Lancer les nouveaux containers
+          # Redémarrer les services Nginx ou autres services nécessaires
+          sudo systemctl restart nginx
+        EOF
