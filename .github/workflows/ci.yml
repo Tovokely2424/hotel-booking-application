@@ -24,4 +24,4 @@ jobs:
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/github-actions-ec2 prasolonjatovo@13.60.95.56 \
-            "cd /home/prasolonjatovo/devOpslab/devOpslab && git pull origin main && docker-compose down && docker-compose up -d && sudo systemctl restart nginx"
+            "cd /home/prasolonjatovo/devOpslab/devOps_lab && git pull origin main && docker-compose down && docker-compose up -d && sudo systemctl restart nginx"
