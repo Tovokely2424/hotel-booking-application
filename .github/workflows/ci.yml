@@ -20,7 +20,7 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}  # Assurez-vous d'utiliser le nom du secret correct
 
-      # Étape 4: Déployer sur EC2
+      # Étape 4: Déployer sur EC2 test end
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no prasolonjatovo@13.60.95.56 \
