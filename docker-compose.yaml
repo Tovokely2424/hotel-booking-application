@@ -31,3 +31,6 @@ services:
       MYSQL_DATABASE: voyage
     volumes:
       - db_data:/var/lib/mysql
+      
+volumes:
+  db_data:
