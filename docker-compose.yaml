@@ -31,6 +31,9 @@ services:
       MYSQL_DATABASE: voyage
     volumes:
       - db_data:/var/lib/mysql
-      
+
 volumes:
   db_data:
+
+
+# Erreur sur le droit d'execution docker corrigé
