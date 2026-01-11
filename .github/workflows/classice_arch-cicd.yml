@@ -1,0 +1,65 @@
+name: Symfony CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  ci:
+    name: CI - Symfony checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          extensions: mbstring, intl, pdo, pdo_mysql
+          tools: composer
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Symfony lint (YAML, Twig, Container)
+        run: |
+          php bin/console lint:yaml config --parse-tags
+          php bin/console lint:twig templates
+          php bin/console lint:container
+
+      # Optionnel
+      # - name: Run tests
+      #   run: php bin/phpunit
+
+  cd:
+    name: CD - Deploy to server
+    runs-on: ubuntu-latest
+    needs: ci
+
+    steps:
+      - name: Deploy via SSH (git pull)
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd /srv/symfony/hotel-booking-application
+
+            git fetch origin
+            git reset --hard origin/main
+
+            composer install --no-dev --optimize-autoloader --no-interaction
+
+            php bin/console cache:clear
+            php bin/console cache:warmup
+
+            sudo chown -R www-data:www-data var
+            sudo chmod -R 775 var
+
+            sudo systemctl restart php8.3-fpm
+            sudo systemctl reload nginx
