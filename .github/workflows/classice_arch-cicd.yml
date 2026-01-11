@@ -35,6 +35,7 @@ jobs:
       # - name: Run tests
       #   run: php bin/phpunit
       #   - name: Code quality check with PHPStan
+      #  correction droit sur EC2
 
   cd:
     name: CD - Deploy to server
