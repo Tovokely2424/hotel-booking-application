@@ -34,6 +34,7 @@ jobs:
       # Optionnel
       # - name: Run tests
       #   run: php bin/phpunit
+      #   - name: Code quality check with PHPStan
 
   cd:
     name: CD - Deploy to server
