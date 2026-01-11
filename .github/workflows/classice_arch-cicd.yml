@@ -23,7 +23,7 @@ jobs:
           coverage: none
 
       - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist
+        run: composer install --no-interaction --prefer-dist --no-scripts
 
       - name: Symfony lint (YAML, Twig, Container)
         run: |
@@ -56,8 +56,8 @@ jobs:
 
             composer install --no-dev --optimize-autoloader --no-interaction
 
-            php bin/console cache:clear
-            php bin/console cache:warmup
+            php bin/console cache:clear --env=prod
+            php bin/console cache:warmup --env=prod
 
             sudo chown -R www-data:www-data var
             sudo chmod -R 775 var
