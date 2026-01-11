@@ -14,8 +14,7 @@
                 <legend>{{ rubrique}}</legend>
                 {% for score in scores %}
                     <div style="margin-bottom : 10px;">
-                        <label for=""><strong>{{ score.getCritere().getTitre() }}</strong></label>
-                        {{ form_widget(form.scores[score|index ])}}
+                        {{ form_widget(form.scores[loop.index0]) }}
                     </div>
                 {% endfor %}
             </fieldset>
