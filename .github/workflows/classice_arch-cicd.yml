@@ -46,7 +46,7 @@ jobs:
       - name: Create tarball
         run: |
           cd /tmp/deploy
-          tar -czf /github/workspace/app.tar.gz .
+          tar -czf $GITHUB_WORKSPACE/app.tar.gz .
 
       - name: Upload artefact to S3
         run: |
