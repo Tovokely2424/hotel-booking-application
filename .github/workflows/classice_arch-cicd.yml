@@ -34,10 +34,11 @@ jobs:
 
       - name: Build artefact
         run: |
-          mkdir /tmp/deploy
+          mkdir -p /tmp/deploy
           cp -r . /tmp/deploy
           cd /tmp/deploy
-          tar -czf /github/workspace/app.tar.gz .
+          tar -czf app.tar.gz .
+          mv app.tar.gz /github/workspace/app.tar.gz
 
       - name: Upload artefact to S3
         run: |
