@@ -1,67 +1,58 @@
-name: Symfony CI/CD
+name: Deploy Symfony (SSM + S3)
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+
+env:
+  AWS_REGION: eu-west-1
+  S3_BUCKET: hotel-booking-deploy
+  APP_NAME: app
+  INSTANCE_ID: i-00d3f44f45ad409aa
 
 jobs:
-  ci:
-    name: CI - Symfony checks
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup PHP 8.3
-        uses: shivammathur/setup-php@v2
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          php-version: 8.3
-          extensions: mbstring, intl, pdo, pdo_mysql
-          tools: composer
-          coverage: none
+          role-to-assume: arn:aws:iam::123456789012:role/github-deploy-role
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist --no-scripts
-
-      - name: Symfony lint (YAML, Twig, Container)
+      - name: Build artefact
         run: |
-          php bin/console lint:yaml config --parse-tags
-          php bin/console lint:twig templates
-          php bin/console lint:container
+          tar -czf app.tar.gz \
+            --exclude=.git \
+            --exclude=node_modules \
+            .
 
-      # Optionnel
-      # - name: Run tests
-      #   run: php bin/phpunit
-      #   - name: Code quality check with PHPStan
-      #  correction droit sur EC2
+      - name: Upload artefact to S3
+        run: |
+          aws s3 cp app.tar.gz \
+            s3://${{ env.S3_BUCKET }}/${{ env.APP_NAME }}/app.tar.gz
 
-  cd:
-    name: CD - Deploy to server
-    runs-on: ubuntu-latest
-    needs: ci
-
-    steps:
-      - name: Deploy via SSH (git pull)
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            cd /srv/symfony/hotel-booking-application
-
-            git fetch origin
-            git reset --hard origin/main
-
-            composer install --no-dev --optimize-autoloader --no-interaction
-
-            php bin/console cache:clear --env=prod
-            php bin/console cache:warmup --env=prod
-
-            sudo chown -R www-data:www-data var
-            sudo chmod -R 775 var
-
-            sudo systemctl restart php8.3-fpm
-            sudo systemctl reload nginx
+      - name: Deploy via SSM
+        run: |
+          aws ssm send-command \
+            --instance-ids ${{ env.INSTANCE_ID }} \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy Symfony via S3" \
+            --parameters 'commands=[
+              "set -e",
+              "aws s3 cp s3://${{ env.S3_BUCKET }}/${{ env.APP_NAME }}/app.tar.gz /tmp/app.tar.gz",
+              "mkdir -p /var/www/${{ env.APP_NAME }}",
+              "cd /var/www/${{ env.APP_NAME }}",
+              "tar -xzf /tmp/app.tar.gz",
+              "composer install --no-dev --optimize-autoloader --no-interaction",
+              "php bin/console cache:clear --env=prod",
+              "php bin/console cache:warmup --env=prod",
+              "chown -R www-data:www-data var",
+              "chmod -R 775 var",
+              "systemctl restart php8.2-fpm",
+              "systemctl reload nginx"
+            ]'
