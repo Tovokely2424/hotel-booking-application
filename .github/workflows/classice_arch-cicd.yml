@@ -10,7 +10,7 @@ permissions:
 
 env:
   AWS_REGION: eu-west-1
-  S3_BUCKET: hotel-booking-deploy
+  S3_BUCKET: s3-devops-lab-booking-app
   APP_NAME: app
   INSTANCE_ID: i-00d3f44f45ad409aa
 
