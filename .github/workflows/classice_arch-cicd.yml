@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 env:
-  AWS_REGION: eu-west-1
+  AWS_REGION: us-east-1
   S3_BUCKET: s3-devops-lab-booking-app
   APP_NAME: app
   INSTANCE_ID: i-00d3f44f45ad409aa
