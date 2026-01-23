@@ -37,6 +37,8 @@ jobs:
           tar -czf app.tar.gz \
             --exclude=.git \
             --exclude=node_modules \
+            --exclude=var \
+            --exclude=vendor \
             .
 
       - name: Upload artefact to S3
