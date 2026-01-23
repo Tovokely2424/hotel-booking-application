@@ -64,3 +64,5 @@ jobs:
               "systemctl restart php8.2-fpm",
               "systemctl reload nginx"
             ]'
+
+# End of file
