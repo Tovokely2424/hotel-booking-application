@@ -34,12 +34,10 @@ jobs:
 
       - name: Build artefact
         run: |
-          tar -czf app.tar.gz \
-            --exclude=.git \
-            --exclude=node_modules \
-            --exclude=var \
-            --exclude=vendor \
-            .
+          mkdir /tmp/deploy
+          cp -r . /tmp/deploy
+          cd /tmp/deploy
+          tar -czf /github/workspace/app.tar.gz .
 
       - name: Upload artefact to S3
         run: |
