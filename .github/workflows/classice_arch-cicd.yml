@@ -35,10 +35,18 @@ jobs:
       - name: Build artefact
         run: |
           mkdir -p /tmp/deploy
-          cp -r . /tmp/deploy
+          rsync -a --delete \
+            --exclude='.git' \
+            --exclude='var' \
+            --exclude='vendor' \
+            --exclude='node_modules' \
+            --exclude='.github' \
+            ./ /tmp/deploy/
+
+      - name: Create tarball
+        run: |
           cd /tmp/deploy
-          tar -czf app.tar.gz .
-          mv app.tar.gz /github/workspace/app.tar.gz
+          tar -czf /github/workspace/app.tar.gz .
 
       - name: Upload artefact to S3
         run: |
