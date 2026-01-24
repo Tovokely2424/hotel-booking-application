@@ -74,4 +74,4 @@ jobs:
               "systemctl reload nginx"
             ]'
 
-# End of file
+# Relod after installa aws cli on ec2 instance
