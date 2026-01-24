@@ -66,10 +66,10 @@ jobs:
               "cd /var/www/${{ env.APP_NAME }}",
               "tar -xzf /tmp/app.tar.gz",
               "composer install --no-dev --optimize-autoloader --no-interaction",
+              "sudo chown -R www-data:www-data /var/www/app/var",
+              "sudo chmod -R 775 /var/www/app/var",
               "php bin/console cache:clear --env=prod",
               "php bin/console cache:warmup --env=prod",
-              "chown -R www-data:www-data var",
-              "chmod -R 775 var",
               "systemctl restart php8.2-fpm",
               "systemctl reload nginx"
             ]'
