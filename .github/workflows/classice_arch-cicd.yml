@@ -68,8 +68,9 @@ jobs:
               "composer install --no-dev --optimize-autoloader --no-interaction",
               "sudo chown -R www-data:www-data /var/www/app/var",
               "sudo chmod -R 775 /var/www/app/var",
+              "rm -rf /var/www/app/var/cache/prod",
               "sudo -u www-data php bin/console cache:clear --env=prod",
-              "php bin/console cache:warmup --env=prod",
+              "sudo -u www-data php bin/console cache:warmup --env=prod",
               "systemctl restart php8.2-fpm",
               "systemctl reload nginx"
             ]'
