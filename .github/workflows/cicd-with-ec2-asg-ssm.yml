@@ -12,7 +12,7 @@ env:
   AWS_REGION: us-east-1
   S3_BUCKET: s3-devops-lab-booking-app
   APP_NAME: app
-  APP_TAG_KEY: Name
+  APP_TAG_KEY: App
   APP_TAG_VALUE: booking-template
 
 jobs:
