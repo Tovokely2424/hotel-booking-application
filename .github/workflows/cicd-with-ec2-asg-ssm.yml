@@ -1,0 +1,76 @@
+name: Deploy Symfony (ASG + SSM + S3)
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  S3_BUCKET: s3-devops-lab-booking-app
+  APP_NAME: app
+  APP_TAG_KEY: Name
+  APP_TAG_VALUE: booking-template
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::367332297180:role/githubactionrole
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Validate AWS authentication
+        run: aws sts get-caller-identity
+
+      - name: Build artefact
+        run: |
+          mkdir -p /tmp/deploy
+          rsync -a --delete \
+            --exclude='.git' \
+            --exclude='var' \
+            --exclude='vendor' \
+            --exclude='node_modules' \
+            --exclude='.github' \
+            ./ /tmp/deploy/
+
+      - name: Create tarball
+        run: |
+          cd /tmp/deploy
+          tar -czf $GITHUB_WORKSPACE/app.tar.gz .
+
+      - name: Upload artefact to S3
+        run: |
+          aws s3 cp app.tar.gz \
+            s3://${{ env.S3_BUCKET }}/${{ env.APP_NAME }}/app.tar.gz
+
+      - name: Deploy via SSM to Auto Scaling Group
+        run: |
+          aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy Symfony to ASG instances" \
+            --targets "Key=tag:${{ env.APP_TAG_KEY }},Values=${{ env.APP_TAG_VALUE }}" \
+            --parameters 'commands=[
+              "set -e",
+              "aws s3 cp s3://${{ env.S3_BUCKET }}/${{ env.APP_NAME }}/app.tar.gz /tmp/app.tar.gz",
+              "mkdir -p /var/www/${{ env.APP_NAME }}",
+              "cd /var/www/${{ env.APP_NAME }}",
+              "tar -xzf /tmp/app.tar.gz",
+              "composer install --no-dev --optimize-autoloader --no-interaction",
+              "chown -R www-data:www-data var",
+              "chmod -R 775 var",
+              "rm -rf var/cache/prod",
+              "sudo -u www-data php bin/console cache:clear --env=prod",
+              "sudo -u www-data php bin/console cache:warmup --env=prod",
+              "systemctl restart php8.2-fpm",
+              "systemctl reload nginx"
+            ]'
