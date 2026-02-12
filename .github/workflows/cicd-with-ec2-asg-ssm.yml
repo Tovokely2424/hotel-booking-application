@@ -13,7 +13,7 @@ env:
   S3_BUCKET: s3-devops-lab-booking-app
   APP_NAME: app
   APP_TAG_KEY: App
-  APP_TAG_VALUE: booking-template
+  APP_TAG_VALUE: booking-app
 
 jobs:
   deploy:
@@ -71,7 +71,7 @@ jobs:
               "sudo rm -f /etc/nginx/sites-available/default",
               "sudo rm -f /etc/nginx/sites-enabled/default",
               "sudo cp -f /var/www/${{ env.APP_NAME }}/nginx.conf /etc/nginx/sites-available/",
-              "sudo ln -s /etc/nginx/sites-available/nginx.conf /etc/nginx/sites-enabled/nginx.conf",
+              "sudo ln -sf /etc/nginx/sites-available/nginx.conf /etc/nginx/sites-enabled/nginx.conf",
               "sudo rm -rf var/cache/prod",
               "sudo -u www-data php bin/console cache:clear --env=prod",
               "sudo -u www-data php bin/console cache:warmup --env=prod",
