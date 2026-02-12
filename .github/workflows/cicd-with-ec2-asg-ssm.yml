@@ -67,11 +67,14 @@ jobs:
               "tar -xzf /tmp/app.tar.gz",
               "composer install --no-dev --optimize-autoloader --no-interaction",
               "chown -R www-data:www-data var",
-              "chmod -R 775 var",
+              "chmod -R 775 var",                          
+              "sudo rm -f /etc/nginx/sites-available/default",
+              "sudo rm -f /etc/nginx/sites-enabled/default",
+              "cp /var/www/${{ env.APP_NAME }}/nginx.conf /etc/nginx/sites-available/",
+              "ln -s /etc/nginx/sites-available/nginx.conf /etc/nginx/sites-enabled/",
               "rm -rf var/cache/prod",
               "sudo -u www-data php bin/console cache:clear --env=prod",
               "sudo -u www-data php bin/console cache:warmup --env=prod",
-              "cp /var/www/${{ env.APP_NAME }}/nginx.conf /etc/nginx/sites-available/default",
               "systemctl restart php8.2-fpm",
               "systemctl reload nginx"
             ]'
