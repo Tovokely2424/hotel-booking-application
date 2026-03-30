@@ -1,32 +1,43 @@
 FROM php:8.2-fpm
 
-RUN  apt-get update && apt-get install -y \
-    libicu-dev \
-    libzip-dev \
+RUN apt-get update && apt-get install -y \
+    git \
     unzip \
     curl \
-    git \
+    libicu-dev \
+    libzip-dev \
+    zip \
     libpng-dev \
-    libonig-dev \
     libjpeg-dev \
-    libxml2-dev \
     libfreetype6-dev \
+    libxml2-dev \
+    libonig-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd zip pdo pdo_mysql mbstring exif
+    && docker-php-ext-install \
+        pdo \
+        pdo_mysql \
+        intl \
+        zip \
+        gd \
+        mbstring \
+        exif \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Installer Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
 COPY . .
 
-RUN composer install
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-# Donne les bons droits
-RUN chown -R www-data:www-data /var/www/var
+RUN php bin/console cache:clear --env=prod || true
+
+RUN chown -R www-data:www-data /var/www
 
 
-EXPOSE 9000
+#EXPOSE 80
 
 CMD ["php-fpm"]

@@ -1,0 +1,9 @@
+FROM nginx:latest
+
+# Copier config nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copier uniquement le dossier public
+COPY public/ /var/www/public
+
+WORKDIR /var/www
